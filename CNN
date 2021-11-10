@@ -1,0 +1,137 @@
+import tensorflow as tf
+fashion_mnist = tf.keras.datasets.fashion_mnist
+(train_X,train_y),(test_X,test_y)=fashion_mnist.load_data()
+
+from collections import Counter
+len(Counter(train_y))
+
+import numpy as np
+print('Training data dimension:',train_X.shape)
+print('Training label dimension:',train_y.shape)
+print('Training label:',np.unique(train_y))
+print('')
+print('Test data dimension:',test_X.shape)
+print('Test label dimension:',test_y.shape)
+print('Test label:',np.unique(test_y))
+
+import matplotlib.pyplot as plt
+plt.imshow(train_X[3])
+
+#Show the sample images
+ax1=plt.figure(figsize=(20,10))
+count=1
+for i in range(10):
+  plt.subplot(2,5,count)
+  plt.imshow(train_X[i],cmap='gray')
+  plt.title('Label-'+str(train_y[i])),plt.axis('off')
+  count+=1
+  
+  #STEP 1
+print('Before one-hot procssing:',train_y[0])
+
+train_label=tf.keras.utils.to_categorical(train_y,num_classes=10)
+test_label=tf.keras.utils.to_categorical(test_y,num_classes=10)
+
+print('After one-hot processing:', train_label[10])
+
+train_input=tf.data.Dataset.from_tensor_slices((train_X,train_label)).batch(50)
+test_input=tf.data.Dataset.from_tensor_slices((test_X,test_label)).batch(10)
+
+print('Length of training input:',len(train_X))
+print('Length of training input after setting batch:',len(train_input))
+train_input
+
+#Building a Neural Network
+#Step 1
+input_data=tf.keras.Input([28,28])
+input_data
+#Step 2 flatten
+dense=tf.keras.layers.Flatten()(input_data)
+dense
+#Step 3 Define middle
+dense=tf.keras.layers.Dense(100,activation='relu')(dense)
+dense=tf.keras.layers.Dense(100,activation='relu')(dense)
+dense=tf.keras.layers.Dense(100,activation='relu')(dense)
+dense=tf.keras.layers.Dense(100,activation='relu')(dense)
+#Step 4 Define output layers
+output_data=tf.keras.layers.Dense(10,activation='softmax')(dense)
+#Step 5
+model=tf.keras.Model(inputs=input_data,outputs=output_data)
+#Step 6 Define loss function
+model.compile(optimizer=tf.optimizers.Adam(0.005),
+              loss=tf.losses.categorical_crossentropy,
+              metrics=['accuracy'])
+#Step 7
+model.summary()
+#Step 8 Train the model
+model.fit(train_input,epochs=10)
+#Step 9
+model.evaluate(test_input)
+
+#Smple Prediction
+
+#Show the sample  images
+ax1=plt.figure(figsize=(20,10))
+count=1
+for i in range (10):
+  plt.subplot(2,5,count)
+  plt.imshow(test_X[i],cmap='gray')
+
+  #predict label
+  result=model.predict(tf.expand_dims(test_X[i],axis=0))
+
+  #show prediction in the image title
+  plt.title('Actual Label-'+str(test_y[i])+'Predicted as-'+str(np.argmax(result))),plt.axis('off')
+  count+=1
+  
+ #Building CNN
+train_data=tf.expand_dims(train_X,-1)
+test_data=tf.expand_dims(test_X,-1)
+train_input=tf.data.Dataset.from_tensor_slices((train_data,train_label)).batch(50)
+test_input=tf.data.Dataset.from_tensor_slices((test_data,test_lab
+#Step 1 Building an input layers
+input_data=tf.keras.layers.Input([28,28,1])
+#Step 2 Build a convolutional layer
+conv=tf.keras.layers.Conv2D(30,10,padding='SAME',activation='relu')(input_data)
+conv=tf.keras.layers.Conv2D(30,10,padding='SAME',activation='relu')(conv)
+#Step 3 Building a pooling layer
+conv=tf.keras.layers.MaxPool2D(strides=[3,3])(conv)
+conv=tf.keras.layers.Conv2D(20,10,padding='SAME',activation='relu')(conv)
+#Step 4 Building a fully connected layer
+dense=tf.keras.layers.Flatten()(conv)
+output_data=tf.keras.layers.Dense(10,activation='softmax')(dense)
+#Step 5 Determine the modle and optimize the loss function
+model=tf.keras.Model(inputs=input_data,outputs=output_data)
+model.compile(optimizer=tf.optimizers.Adam(0.0001),
+              loss=tf.losses.categorical_crossentropy,
+              metrics=['accuracy'])
+model.summary()
+#Step 6 Train  AND Test The model
+model.fit(train_input,epochs=10)
+model.evaluate(test_input)
+#Step 7 Save the Model
+model.save('./model.h5')
+#Step 8 Read the model
+modelx=tf.keras.models.load_model('./model.h5')
+modelx.evaluate(test_input)
+
+#Make Prediction
+import matplotlib.pyplot as plt
+
+#Show the sample images
+ax1=plt.figure(figsize=(20,10))
+count=1
+for i in range(10):
+    plt.subplot(2,5,count)
+    plt.imshow(test_X[i],cmap='gray')
+
+    #predict label
+    result = modelx.predict(tf.expand_dims(test_X[i], axis=0))
+
+    #Show prediction in the image title
+    plt.title('Actual Label-' + str(test_y[i])+'Predicted as-'+ str(np.argmax(result))),
+    count +=1
+
+
+train_data.shape
+ 
